@@ -1,3 +1,6 @@
+find src -name "*.java" > sources.txt && javac -d bin @sources.txt && rm sources.txt
+java -cp bin PlayLevel levels/ASCII_otherLevels_levels/GRID_DATA_RRVX50WXF_OVERWORLD.txt
+
 <p align="center">
 <a href="#features">Features</a> &mdash; <a href="#use">How To Use</a> &mdash; <a href="#papers">Related Papers</a> &mdash; <a href="#missing">Missing Features</a> &mdash; <a href="#copyrights">Copyrights</a>
 </p>

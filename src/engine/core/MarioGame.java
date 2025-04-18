@@ -56,6 +56,7 @@ public class MarioGame {
     private MarioRender render = null;
     private MarioAgent agent = null;
     private MarioWorld world = null;
+    private ArrayList<int[]> marioPath = new ArrayList<>();
 
     /**
      * Create a mario game to be played
@@ -219,6 +220,7 @@ public class MarioGame {
     }
 
     private MarioResult gameLoop(String level, int timer, int marioState, boolean visual, int fps) {
+        this.marioPath.clear();
         this.world = new MarioWorld(this.killEvents);
         this.world.visuals = visual;
         this.world.initializeLevel(level, 1000 * timer);
@@ -248,28 +250,25 @@ public class MarioGame {
         ArrayList<MarioAgentEvent> agentEvents = new ArrayList<>();
         while (this.world.gameStatus == GameStatus.RUNNING) {
             if (!this.pause) {
-                //get actions
+                // get actions
                 agentTimer = new MarioTimer(MarioGame.maxTime);
                 boolean[] actions = this.agent.getActions(new MarioForwardModel(this.world.clone()), agentTimer);
-                if (MarioGame.verbose) {
-                    if (agentTimer.getRemainingTime() < 0 && Math.abs(agentTimer.getRemainingTime()) > MarioGame.graceTime) {
-                        System.out.println("The Agent is slowing down the game by: "
-                                + Math.abs(agentTimer.getRemainingTime()) + " msec.");
-                    }
-                }
+
                 // update world
                 this.world.update(actions);
+                marioPath.add(new int[]{(int) (this.world.mario.x / 16), (int) (this.world.mario.y / 16)}); // Track Mario's position
                 gameEvents.addAll(this.world.lastFrameEvents);
                 agentEvents.add(new MarioAgentEvent(actions, this.world.mario.x,
                         this.world.mario.y, (this.world.mario.isLarge ? 1 : 0) + (this.world.mario.isFire ? 1 : 0),
                         this.world.mario.onGround, this.world.currentTick));
             }
 
-            //render world
+            // render world
             if (visual) {
                 this.render.renderWorld(this.world, renderTarget, backBuffer, currentBuffer);
             }
-            //check if delay needed
+
+            // check if delay needed
             if (this.getDelay(fps) > 0) {
                 try {
                     currentTime += this.getDelay(fps);
@@ -281,4 +280,9 @@ public class MarioGame {
         }
         return new MarioResult(this.world, gameEvents, agentEvents);
     }
+
+    public ArrayList<int[]> getMarioPath() {
+        return this.marioPath;
+    }
+    
 }
